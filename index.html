@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HR Training Recommendation Tool — Prototype v1</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#172b3a;background:#f3f6fa}*{box-sizing:border-box}body{margin:0;padding:28px 14px}.wrap{max-width:760px;margin:auto;background:white;padding:28px;border-radius:14px;box-shadow:0 5px 22px #172b3a16}h1{margin:0 0 8px;font-size:1.7rem}h2{font-size:1.15rem}p{line-height:1.5}.muted{color:#4d5b68}.notice{background:#eaf2fc;border-left:4px solid #245da0;padding:12px;margin:20px 0}label{font-weight:700;display:block;margin:18px 0 7px}select,textarea{width:100%;padding:12px;border:1px solid #8c9aa8;border-radius:7px;font:inherit}textarea{min-height:88px}button{background:#205d9c;color:white;border:0;padding:12px 16px;border-radius:7px;cursor:pointer;font-weight:bold;margin:8px 6px 0 0}button:hover{background:#15446f}button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #f4b740;outline-offset:2px}.secondary{background:#566575}.danger{background:#9e3440}.panel{border:1px solid #d0d9e2;border-radius:10px;padding:18px;margin-top:22px}#result[hidden],#review[hidden]{display:none}.status{font-weight:bold;margin-top:14px}footer{margin-top:28px;font-size:.85rem;color:#4d5b68}
+</style>
+</head>
+<body><main class="wrap">
+<h1>HR Training Recommendation Tool</h1>
+<p class="muted">Milestone 3 • Prototype v1</p>
+<div class="notice"><strong>Demonstration only:</strong> This prototype uses synthetic job scenarios and a fixed, rule-based training catalog. It does not use a live AI model or make employment decisions. HR must review every recommendation. Do not enter personal or confidential information.</div>
+<label for="role">1. Select a job role</label>
+<select id="role"><option value="">Choose a role</option><option>Customer Service Representative</option><option>Administrative Assistant</option><option>Team Supervisor</option></select>
+<label for="gap">2. Select an identified skill gap</label>
+<select id="gap"><option value="">Choose a skill gap</option><option>Workplace Communication</option><option>Time Management</option><option>Conflict Resolution</option></select>
+<button id="generate" type="button">Get training recommendation</button>
+<section id="result" class="panel" hidden aria-live="polite"><h2>3. Training recommendation</h2><p><strong id="training"></strong></p><p id="explanation"></p><p class="muted">Catalog match only; suitability must be checked by HR.</p><h2>4. HR review</h2><button id="accept" type="button">Accept</button><button id="modify" type="button" class="secondary">Modify</button><button id="reject" type="button" class="danger">Reject</button><div id="review" hidden><label for="notes">HR modification or rejection reason (synthetic test notes only)</label><textarea id="notes" placeholder="Enter a revised training title or reason..."></textarea><button id="save" type="button">Save review</button></div><p id="status" class="status" role="status"></p></section>
+<footer>No information is sent to a server. Inputs and review decisions exist only in this browser session and are cleared on refresh. No credentials or API keys are used.</footer>
+</main>
+<script>
+'use strict';
+const catalog={
+ 'Workplace Communication':{title:'Effective Workplace Communication Training',purpose:'practice clear messages, active listening, and appropriate escalation'},
+ 'Time Management':{title:'Time Management and Prioritization Training',purpose:'practice prioritizing tasks, planning workloads, and meeting deadlines'},
+ 'Conflict Resolution':{title:'Workplace Conflict Resolution Training',purpose:'practice respectful disagreement, de-escalation, and problem solving'}
+};
+const roleContext={
+ 'Customer Service Representative':'customer interactions and coordination with colleagues',
+ 'Administrative Assistant':'scheduling, documentation, and coordination across departments',
+ 'Team Supervisor':'team guidance, feedback, and daily workflow coordination'
+};
+const $=id=>document.getElementById(id);
+$('generate').addEventListener('click',()=>{
+ const role=$('role').value,gap=$('gap').value;
+ if(!role||!gap){alert('Please select both a job role and a skill gap.');return;}
+ const item=catalog[gap];
+ $('training').textContent=item.title;
+ $('explanation').textContent=`For the ${role} role, this training targets ${gap.toLowerCase()} by helping staff ${item.purpose}. This may support ${roleContext[role]}. HR should confirm the skill gap and job relevance before approving.`;
+ $('result').hidden=false;$('review').hidden=true;$('notes').value='';$('status').textContent='Awaiting HR review.';
+});
+$('accept').addEventListener('click',()=>{$('review').hidden=true;$('status').textContent='Accepted by HR for this demonstration. No employee record was updated.';});
+for(const action of ['modify','reject']){$(action).addEventListener('click',()=>{$('review').hidden=false;$('review').dataset.action=action;$('notes').value='';$('notes').focus();$('status').textContent=`${action==='modify'?'Modification':'Rejection'} reason required.`;});}
+$('save').addEventListener('click',()=>{const note=$('notes').value.trim();if(!note){$('status').textContent='Please enter a reason or revised title before saving.';return;}const action=$('review').dataset.action;$('status').textContent=`${action==='modify'?'Modified':'Rejected'} by HR for this demonstration. Note: ${note}`;$('review').hidden=true;});
+</script></body></html>
