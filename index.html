@@ -31,7 +31,9 @@
 <label for="gap">2. Select an identified skill gap</label>
 <select id="gap"><option value="">Choose a skill gap</option><option>Workplace Communication</option><option>Time Management</option><option>Conflict Resolution</option></select>
 <button id="generate" type="button">Get training recommendation</button>
-<section id="result" class="panel" hidden aria-live="polite"><h2>3. Training recommendation</h2><p><strong id="training"></strong></p><p id="explanation"></p><p class="muted">Catalog match only; suitability must be checked by HR.</p><h2>4. HR review</h2><button id="accept" type="button">Accept</button><button id="modify" type="button" class="secondary">Modify</button><button id="reject" type="button" class="danger">Reject</button><div id="review" hidden><label for="notes">HR modification or rejection reason (synthetic test notes only)</label><textarea id="notes" placeholder="Enter a revised training title or reason..."></textarea><button id="save" type="button">Save review</button></div><p id="status" class="status" role="status"></p></section>
+<section id="result" class="panel" hidden aria-live="polite"><h2>3. Training recommendation</h2><p><strong id="training"></strong></p><p id="explanation"></p><p class="muted">Catalog match only; suitability must be checked by HR.</p><h2>4. HR review</h2><button id="accept" type="button">Accept</button><button id="modify" type="button" class="secondary">Modify</button><button id="reject" type="button" class="danger">Reject</button><div id="review" hidden><label for="notes">HR modification or rejection reason (synthetic test notes only)</label><textarea id="notes" placeholder="Enter a revised training title or reason..."></textarea><button id="save" type="button">Save review</button></div>
+<p id="status" class="status" role="status" aria-live="polite" tabindex="-1"></p>
+</section>
 <footer>No information is sent to a server. Inputs and review decisions exist only in this browser session and are cleared on refresh. No credentials or API keys are used.</footer>
 </main>
 <script>
@@ -53,7 +55,11 @@ $('generate').addEventListener('click',()=>{
  const item=catalog[gap];
  $('training').textContent=item.title;
  $('explanation').textContent=`For the ${role} role, this training targets ${gap.toLowerCase()} by helping staff ${item.purpose}. This may support ${roleContext[role]}. HR should confirm the skill gap and job relevance before approving.`;
- $('result').hidden=false;$('review').hidden=true;$('notes').value='';$('status').textContent='Awaiting HR review.';
+ $('result').hidden=false;
+$('review').hidden = true;
+$('status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+$('status').focus({ preventScroll: true });
+$('notes').value='';$('status').textContent='Awaiting HR review.';
 });
 $('accept').addEventListener('click',()=>{$('review').hidden=true;$('status').textContent='Accepted by HR for this demonstration. No employee record was updated.';});
 for(const action of ['modify','reject']){$(action).addEventListener('click',()=>{$('review').hidden=false;$('review').dataset.action=action;$('notes').value='';$('notes').focus();$('status').textContent=`${action==='modify'?'Modification':'Rejection'} reason required.`;});}
